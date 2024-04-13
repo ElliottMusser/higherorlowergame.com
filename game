@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number, Sir Master!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0ffff; /* Light powder blue */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #gameArea {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        #leaderboard {
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        #restartButton {
+            background-color: #f44336;
+            margin-top: 20px;
+        }
+
+        #restartButton:hover {
+            background-color: #d32f2f;
+        }
+
+        #comedyText {
+            margin-top: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <h1>Guess the Number, Sir Master!</h1>
+        <p>Give it a try, Sir Master! Guess a number between 1 and 100:</p>
+        <input type="number" id="inputField" min="1" max="100">
+        <button id="submitButton">Submit Guess</button>
+        <div id="result"></div>
+        <div id="leaderboard">
+            <h2>Leaderboard</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Guesses</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <!-- Leaderboard data will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <button id="restartButton">Restart Game</button>
+        <div id="comedyText"></div>
+    </div>
+
+    <script>
+        let randomNumber = Math.floor(Math.random() * 100) + 1;
+        let numGuesses = 0;
+        let leaderboard = [];
+
+        const inputField = document.getElementById("inputField");
+        const submitButton = document.getElementById("submitButton");
+        const resultDisplay = document.getElementById("result");
+        const restartButton = document.getElementById("restartButton");
+        const comedyText = document.getElementById("comedyText");
+
+        function handleGuess() {
+            numGuesses++;
+            const userGuess = parseInt(inputField.value);
+
+            if (userGuess === randomNumber) {
+                resultDisplay.textContent = `Hurray! You've got it right in ${numGuesses} attempts, Sir Master!`;
+                submitButton.disabled = true;
+                updateLeaderboard();
+            } else if (userGuess < randomNumber) {
+                resultDisplay.textContent = "Too low! Guess higher, Sir Master.";
+            } else {
+                resultDisplay.textContent = "Too high! Guess lower, Sir Master.";
+            }
+
+            inputField.value = "";
+        }
+
+        function updateLeaderboard() {
+            let playerName = prompt("Congratulations, Sir Master! You guessed the correct number!\nEnter your name for the leaderboard:");
+            while (!playerName || hasInappropriateWords(playerName)) {
+                playerName = prompt("Please enter a valid name for the leaderboard (without inappropriate words):");
+            }
+            leaderboard.push({ name: playerName, guesses: numGuesses });
+            leaderboard.sort((a, b) => a.guesses - b.guesses);
+            leaderboard = leaderboard.slice(0, 5); // Keep only top 5 players
+            renderLeaderboard();
+        }
+
+        function restartGame() {
+            randomNumber = Math.floor(Math.random() * 100) + 1;
+            numGuesses = 0;
+            leaderboard = [];
+            submitButton.disabled = false;
+            resultDisplay.textContent = "";
+        }
+
+        function renderLeaderboard() {
+            const leaderboardBody = document.getElementById("leaderboardBody");
+            leaderboardBody.innerHTML = "";
+            leaderboard.forEach((player, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.name}</td>
+                    <td>${player.guesses}</td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+        }
+
+        submitButton.addEventListener("click", handleGuess);
+        restartButton.addEventListener("click", restartGame);
+
+        inputField.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                handleGuess();
+            }
+        });
+
+        // Check for inappropriate words in player names
+        function hasInappropriateWords(name) {
+            const inappropriateWords = ["cheater", "cheat", "loser", "badword"];
+            return inappropriateWords.some(word => name.toLowerCase().includes(word));
+        }
+
+        // Random comedy text
+        const comedyTexts = [
+            "Why did the tomato turn red? Because it saw the salad dressing!",
+            "Parallel lines have so much in common. It's a shame they'll never meet.",
+            "What do you call fake spaghetti? An impasta!",
+            "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+            "What's orange and sounds like a parrot? A carrot!",
+            "I'm reading a book on anti-gravity. It's impossible to put down!",
+            "I'm on a whiskey diet. I've lost three days already.",
+            "Why don't skeletons fight each other? They don't have the guts.",
+            "I'm reading a book about anti-gravity. It's impossible to put down!"
+        ];
+
+        setInterval(() => {
+            const randomIndex = Math.floor(Math.random() * comedyTexts.length);
+            comedyText.textContent = comedyTexts[randomIndex];
+        }, 30000); // Display random comedy text every 30 seconds
+    </script>
+</body>
+</html>
